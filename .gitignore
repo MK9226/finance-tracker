@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+
+venv/
+.env
+
+database/finance.db
+
+static/chart.png
+static/income_expense.png
+
+.vscode/
+.idea/

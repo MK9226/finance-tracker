@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Finance Tracker</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+</head>
+
+<body>
+
+<!--Navigation-->
+<nav class="navbar navbar-dark bg-dark">
+
+    <div class="container">
+
+        <span class="navbar-brand mb-0 h1">
+             Finance Tracker
+        </span>
+
+    </div>
+
+</nav>    
+
+<div class="container mt-4">
+
+  <div class="row">
+
+    <!--LEFT COLUMN-->
+    <div class="col-lg-8">
+
+        <!--Add + Search-->
+        <div class="d-flex justify-content-between mb-3">
+           
+            <a href="/add"
+           class="btn btn-success">
+           Add Transaction
+           </a>
+
+            <form method="GET" class="d-flex">
+
+                <input type="text"
+                       name="search"
+                       class="form-control me-2"
+                       placeholder="Search category, type, amount..."
+                       value="{{search}}">
+
+                <button type="submit"
+                        class="btn btn-primary me-2">
+                        Search
+                </button>  
+
+                 <a href="/"
+                   class="btn btn-secondary">
+                   Clear
+                </a>
+
+            </form>   
+            
+        </div>
+        
+        <!--Transactions Table-->
+        <div class="card shadow">
+
+            <div class="card-header">
+            <h4 class="mb-0">
+            Transactions
+            </h4>
+           </div>
+
+            <div class="card-body">
+                
+                <div class="table-responsive">
+                    
+                    <table class="table table-striped table-hover">
+                        
+                        <thead class="table-dark">
+                            
+                            <tr>
+                                
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            
+                            </tr>
+                        
+                        </thead>
+                        
+                        <tbody>
+                            
+                            {% for t in transactions %}
+                            
+                            <tr>
+                                
+                                <td>{{t.date}}</td>
+                                
+                                <td>
+                                    
+                                    {% if t.type == "income" %}
+                                    
+                                    <span class="badge bg-success">
+                                        Income
+                                    </span>
+
+                            {% else %}
+
+                            <span class="badge bg-danger">
+                                Expense
+                            </span>
+
+                            {% endif %}
+                        </td>
+
+                        <td>{{t.category}}</td>
+
+                        <td>€ {{t.amount}}</td>
+
+                        <td>
+
+                            <a href="/edit/{{t.id}}"
+                               class="btn btn-warning btn-sm">
+                              
+                               Edit
+
+                            </a>
+
+                            <a href="/delete/{{t.id}}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this transaction?')">
+
+                               Delete
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+                </div>
+           
+        </div>
+
+     </div>
+
+    </div>
+
+    <!--RIGHT COLUMN-->
+
+    <div class="col-lg-4">
+
+        <div class="card text-bg-success mb-3">
+           
+            <div class="card-body">
+
+                <h5>Income</h5>
+
+                <h2>€ {{income_total}} </h2>
+
+            </div>
+
+        </div>
+
+        <div class="card text-bg-danger mb-3">
+           
+            <div class="card-body">
+
+                <h5>Expenses</h5>
+
+                <h2>€ {{expense_total}} </h2>
+
+            </div>
+
+        </div>
+
+    
+
+        <div class="card text-bg-primary mb-3">
+           
+            <div class="card-body">
+
+                <h5>Balance</h5>
+
+                <h2>€ {{balance}} </h2>
+
+            </div>
+
+        </div>
+
+        <!--Charts Button-->
+
+        <button class="btn btn-outline-primary btn-lg"
+                type="button"
+                id="chartsButton"
+                data-bs-toggle="collapse"
+                data-bs-target="#chartsSection"
+                aria-expanded="false">
+
+                Show Financial Charts
+
+        </button>
+
+    </div>
+
+    </div>
+
+    <!--Charts-->
+    <div class="collapse mt-4" id="chartsSection">
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <div class="card shadow">
+
+            <div class="card-header">
+                <h4 class="mb-0">Expense Breakdown</h4>
+            </div>
+
+            <div class="card-body text-center">
+
+                <img 
+                    src="{{url_for('static', filename='chart.png')}}"
+                    class="img-fluid"
+                    alt="Expense Breakdown">
+
+            </div>
+
+        </div>
+    
+    </div>
+
+    <div class="col-md-6">
+
+        <div class="card shadow">
+
+            <div class="card-header">
+                <h4 class="mb-0">Income vs Expense</h4>
+            </div>
+
+            <div class="card-body text-center">
+
+                <img 
+                src="{{url_for('static', filename='income_expense.png')}}"
+                class="img-fluid"
+                alt="Income vs Expense">   
+                
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function()
+{
+    const chartsSection = document.getElementById("chartsSection");
+    const chartsButton = document.getElementById("chartsButton");
+
+    chartsSection.addEventListener("show.bs.collapse", function(){
+        chartsButton.textContent = "Hide Financial Charts";
+    });
+
+    chartsSection.addEventListener("hidden.bs.collapse", function()
+    {
+        chartsButton.textContent = "Show Financial Charts";
+    }
+    );
+});
+
+</script>
+</body>    
+</html>
