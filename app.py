@@ -1,4 +1,13 @@
-from flask import Flask, render_template, request, redirect
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    Response
+)
+
+import csv
+import io
 
 from services.database_service import(
     create_table,
@@ -6,7 +15,8 @@ from services.database_service import(
     get_all_transactions,
     delete_transaction_db,
     update_transaction_db,
-    search_transactions
+    search_transactions,
+    clear_transactions_db
 )
 
 create_table()
@@ -81,6 +91,13 @@ def delete(transaction_id):
 
     return redirect("/")
 
+@app.route("/clear")
+def clear():
+
+    clear_transactions_db()
+
+    return redirect("/")
+
 
 @app.route("/edit/<transaction_id>", methods=["GET","POST"])
 def edit(transaction_id):
@@ -122,6 +139,42 @@ def charts():
         "charts.html",
         transactions=transactions
     )
+
+
+@app.route("/export")
+def export():
+
+    transactions = get_all_transactions()
+
+    output = io.StringIO()
+
+    writer = csv.writer(output)
+
+    writer.writerow([
+        "Date",
+        "Type",
+        "Category",
+        "Amount"
+    ])
+
+    for t in transactions:
+        writer.writerow([
+            t.date,
+            t.type,
+            t.category,
+            t.amount
+        ])
+
+    output.seek(0)
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition":
+            "attachment; filename=transactions.csv"
+        }
+    )    
 
 
 if __name__ == "__main__":

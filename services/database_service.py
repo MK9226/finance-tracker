@@ -111,6 +111,19 @@ def update_transaction_db(transaction):
     conn.commit()
     conn.close()
 
+
+def clear_transactions_db():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+                   DELETE FROM transactions
+                   """)
+    
+    conn.commit()
+    conn.close()
+
 def search_transactions(search_term):
 
     conn = get_connection()
